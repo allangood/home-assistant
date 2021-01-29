@@ -1,0 +1,160 @@
+version: "3.8"
+
+services:
+  home-assistant:
+    container_name: home-assistant
+    image: homeassistant/home-assistant:stable
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 500M
+    volumes:
+      - /opt/ha:/config 
+      - /var/run/mysqld:/run/mysqld
+    environment:
+      - TZ=${TZ}
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - zwave2mqtt
+      - motioneye
+      - adguard
+      - doods
+
+  zwave2mqtt:
+    container_name: zwave2mqtt
+    image: robertslando/zwave2mqtt:latest
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+    devices:
+      - /dev/ttyACM0:/dev/zwave
+    volumes:
+     - /opt/zwave2mqtt:/usr/src/app/store
+    ports:
+      - 127.0.0.1:8091:8091
+      - 127.0.0.1:7001:7001
+
+  motioneye:
+    container_name: motioneye
+    image: ccrisan/motioneye:master-amd64
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 500M
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/motioneye:/etc/motioneye
+      - /media/recordings:/var/lib/motioneye
+    ports:
+      - 127.0.0.1:8765:8765
+    depends_on:
+      - doods
+
+  adguard:
+    container_name: adguard
+    image: adguard/adguardhome
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 100M
+    volumes:
+     - /opt/adguard/work:/opt/adguardhome/work
+     - /opt/adguard/config:/opt/adguardhome/conf
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 853:853/tcp
+      - 4000:3000/tcp
+      - 9090:9090/tcp
+
+  doods:
+    container_name: doods
+    image: snowzach/doods:noavx
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '4.00'
+          memory: 2g
+    environment:
+      - TZ=${TZ}
+      - /etc/localtime:/etc/localtime:ro
+      - doods.auth_key=${DOODS_KEY}
+    volumes:
+     - /opt/doods/config.yaml:/opt/doods/config.yaml
+     - /opt/doods/models:/opt/doods/models
+    ports:
+      - 127.0.0.1:5000:8080
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: always
+    links:
+      - "prometheus:prometheus"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 100M
+    environment:
+      - TZ=${TZ}
+      - /etc/localtime:/etc/localtime:ro
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/grafana/config:/etc/grafana
+      - /opt/grafana/data:/var/lib/grafana
+    ports:
+      - 127.0.0.1:3010:3000
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: always
+    links:
+      - "exporter:exporter"
+    command:
+      - '--web.listen-address=0.0.0.0:8090'
+      - "--web.external-url=https://${EXTERNAL_URL}/prometheus/"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 100M
+    environment:
+      - TZ=${TZ}
+      - /etc/localtime:/etc/localtime:ro
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/prometheus/config:/etc/prometheus
+      - /opt/prometheus/data:/prometheus
+    ports:
+      - 127.0.0.1:8090:8090
+
+  exporter:
+    container_name: container-exporter
+    image: prom/container-exporter:latest
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+    volumes:
+      - /sys/fs/cgroup:/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+
