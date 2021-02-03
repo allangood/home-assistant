@@ -4,6 +4,7 @@ The run.sh script will help to create all base directories, but you still need t
 
 ### Contents
 * Home Assistant
+* Nginx + ModSecurity => WAF for protection
 * Prometheus => For your metrics
 * Grafana => To create nice dashboards
 * container-exporter => To get metrics from your containers

@@ -1,6 +1,25 @@
 version: "3.8"
 
 services:
+  nginx:
+    container_name: nginx
+    image: allangood/nginx-modsecurity
+    restart: unless-stopped
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 80M
+    volumes:
+      - /opt/nginx:/etc/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/log/nginx:/var/log/nginx
+      - /var/www:/var/www:ro
+      - /var/lib/GeoIP:/var/lib/GeoIP:ro
+    environment:
+      - TZ="America/Winnipeg"
+
   home-assistant:
     container_name: home-assistant
     image: homeassistant/home-assistant:stable
