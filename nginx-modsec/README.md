@@ -1,6 +1,8 @@
 # Nginx + ModSecurity
-## Debian
+### The easy way: Using docker
+[https://github.com/allangood/nginx-waf](https://github.com/allangood/nginx-waf)
 
+### The not so easy way: Debian
 First, add the repository to your list:
 ```
 deb http://nginx.org/packages/debian buster nginx
@@ -34,4 +36,4 @@ Now is the nginx configuration
 [Nginx usage](https://github.com/SpiderLabs/ModSecurity-nginx#usage)
 
 ## TODO:
-* Create a docker file for nginx+modsecurity
+- [x] Create a docker file for nginx+modsecurity => [https://github.com/allangood/nginx-waf](https://github.com/allangood/nginx-waf)
