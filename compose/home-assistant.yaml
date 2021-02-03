@@ -18,7 +18,7 @@ services:
       - /var/www:/var/www:ro
       - /var/lib/GeoIP:/var/lib/GeoIP:ro
     environment:
-      - TZ="America/Winnipeg"
+      - TZ=${TZ}
 
   home-assistant:
     container_name: home-assistant
