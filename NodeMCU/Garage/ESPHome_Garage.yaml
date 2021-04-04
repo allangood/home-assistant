@@ -1,0 +1,123 @@
+esphome:
+  name: garage
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wifi.ssid
+  password: !secret wifi.password
+  manual_ip:
+    static_ip: !secret net.garage_address
+    gateway: !secret net.gateway
+    subnet: !secret net.subnet
+    dns1: !secret net.dns1
+    dns2: !secret net.dns2
+  ap:
+    ssid: "GarageFallback"
+    password: !secret ap.password
+
+ota:
+  safe_mode: True
+  password: !secret ota.password
+
+mqtt:
+  broker: !secret mqtt.address
+  username: !secret mqtt.username
+  password: !secret mqtt.password
+  discovery: True
+  topic_prefix: esphome/garage_control
+
+logger:
+  level: INFO
+
+binary_sensor:
+  - platform: status
+    name: "Garage Controler"
+  - platform: gpio
+    name: garage_door
+    pin: D5
+    device_class: garage_door
+    filters:
+      - delayed_on_off: 500ms
+    id: garage_door
+    on_state:
+      - while:
+          condition:
+            binary_sensor.is_on: garage_door
+          then:
+            - component.update: garage_indoor_ultrassonic
+            - delay: 5s
+      - while:
+          condition:
+            binary_sensor.is_off: garage_door
+          then:
+            - component.update: garage_indoor_ultrassonic
+            - delay: 15min
+
+switch:
+  - platform: gpio
+    restore_mode: ALWAYS_OFF
+    pin:
+      number: D1
+      inverted: yes
+    name: garage_door_relay
+    id: garage_door_relay
+    internal: True
+
+cover:
+  - platform: template
+    name: garage_door_control
+    device_class: garage
+    lambda: |-
+      if (id(garage_door).state) {
+        return COVER_OPEN;
+      } else {
+        return COVER_CLOSED;
+      }
+    open_action:
+      - switch.turn_on: garage_door_relay
+      - delay: 500ms
+      - switch.turn_off: garage_door_relay
+      - delay: 16s
+      - switch.turn_on: garage_door_relay
+      - delay: 500ms
+      - switch.turn_off: garage_door_relay
+    close_action:
+      - switch.turn_on: garage_door_relay
+      - delay: 500ms
+      - switch.turn_off: garage_door_relay
+    stop_action:
+      - switch.turn_on: garage_door_relay
+      - delay: 500ms
+      - switch.turn_off: garage_door_relay
+
+dallas:
+  - pin: D2
+
+sensor:
+  - platform: ultrasonic
+    update_interval: never
+    trigger_pin: D6
+    echo_pin: D7
+    timeout: 5m
+    name: garage_indoor_ultrassonic
+    id: garage_indoor_ultrassonic
+  - platform: dht
+    model: DHT22
+    pin: D3
+    temperature:
+      name: garage_indoor_temperature
+    humidity:
+      name: garage_indoor_humidity
+    update_interval: 60s
+  - platform: dallas
+    index: 0
+    name: outdoor_temperature
+  - platform: wifi_signal
+    name: "Garage WiFi Signal Sensor"
+    update_interval: 60s
+
+interval:
+  - interval: 10min
+    then:
+      - component.update: garage_indoor_ultrassonic
