@@ -8,7 +8,11 @@ I live in Winnipeg, Canda, where temperatures can reach -40°C/-40°F up to +32�
 
 I had some problems to find the right parts for this project, specially because of the extreme cold. The reed switch was part that had more problems. After change it to a more robust (and expensive) part, everything is stable and it survived the whole winter without any problem.
 
-The case I am using is waterproof to help with the insulation. I had to drill some holes to run the cables to the sensors.
+The case I am using is waterproof to help with the insulation. I had to drill some holes to run the cables to the sensors and cover them with hot glue, not perfect but it works!
+
+The ultrassonic sensor is used to detect if my car is parked inside the garage. I get that information based in the distance the sensor is reporting.
+
+
 
 This is how the final project looks like in my garage:
 
