@@ -10,13 +10,33 @@ I had some problems to find the right parts for this project, specially because 
 
 The case I am using is waterproof to help with the insulation. I had to drill some holes to run the cables to the sensors and cover them with hot glue, not perfect but it works!
 
-The ultrassonic sensor is used to detect if my car is parked inside the garage. I get that information based in the distance the sensor is reporting.
-
+The ultrassonic sensor is used to detect if my car is parked inside the garage. I get that information based in the distance the sensor is reporting with this binary sensor:
+```
+- platform: template
+  sensors:
+    car_in_garage:
+      friendly_name: 'Car in Garage'
+      device_class: presence
+      value_template: >-
+        {% if (states('sensor.garage_indoor_ultrassonic')|float) < 1 %}
+          on
+        {% else %}
+          off
+        {% endif %}
+```
 
 
 This is how the final project looks like in my garage:
 
 ![Final Project](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/Control.jpg)
+
+![Inside](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/Inside.jpg)
+
+![Reed Switch](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/ReedSwitch02.jpg)
+
+![Ultrassonic sensor](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/ultrassonic.jpg)
+
+![Detail DS18B20](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/ds18b20_02.jpg)
 
 This is the Fritzing project:
 
