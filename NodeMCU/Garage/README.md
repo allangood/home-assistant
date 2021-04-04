@@ -10,6 +10,15 @@ I had some problems to find the right parts for this project, specially because 
 
 The case I am using is waterproof to help with the insulation. I had to drill some holes to run the cables to the sensors.
 
+This is how the final project looks like in my garage:
+![Final Project](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/Control.jpg)
+
+This is the Fritzing project:
+!Fritzing](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/Garage.png)
+
+And this is the Home Assistant entities:
+![Entities](https://github.com/allangood/home-assistant/raw/main/NodeMCU/Garage/img/HA_Entities.png)
+
 ### Parts list:
 
 [DS18B20](https://www.banggood.com/Wholesale-DS18B20-Waterproof-Digital-Temperature-Temp-Sensor-Probe-p-53674.html?cur_warehouse=CN&rmmds=search)
